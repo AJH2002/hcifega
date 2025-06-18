@@ -109,7 +109,7 @@ export default {
   align-items: center;
   gap: var(--spacing-sm);
   padding: var(--spacing-md) var(--spacing-lg);
-  color: rgba(255, 255, 255, 0.9);
+  color: #2d3748;
   text-decoration: none;
   border-radius: var(--radius-lg);
   font-weight: 500;
@@ -137,6 +137,7 @@ export default {
   background: rgba(255, 255, 255, 0.1);
   transform: translateY(-2px);
   box-shadow: var(--shadow-soft);
+  color: #1a202c;
 }
 
 .nav-link.router-link-active {

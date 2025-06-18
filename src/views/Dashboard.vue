@@ -1,192 +1,117 @@
 <template>
   <div class="dashboard">
-    <!-- Header Section -->
-    <div class="dashboard-header">
-      <div class="header-content">
-        <div class="header-text">
-          <h1 class="dashboard-title">
-            <span class="title-icon">📊</span>
-            Dashboard Morning Reflection
-          </h1>
-          <p class="dashboard-subtitle">Monitor kehadiran dan aktivitas karyawan</p>
-        </div>
-        <div class="header-stats">
-          <div class="stat-card">
-            <div class="stat-icon">👥</div>
-            <div class="stat-content">
-              <div class="stat-number">{{ store.employees.length }}</div>
-              <div class="stat-label">Total Karyawan</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-content">
-              <div class="stat-number">{{ todayReflections.length }}</div>
-              <div class="stat-label">Hadir Hari Ini</div>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-icon">⏰</div>
-            <div class="stat-content">
-              <div class="stat-number">{{ pendingLeaves.length }}</div>
-              <div class="stat-label">Cuti Pending</div>
-            </div>
-          </div>
-        </div>
+    <!-- Simple Header -->
+    <header class="header">
+      <h1 class="title">Dashboard Morning Reflection</h1>
+      <div class="time-info">
+        <span class="time">{{ currentTime }}</span>
+        <span class="date">{{ currentDate }}</span>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-number">{{ store.employees.length }}</div>
+        <div class="stat-label">Total Karyawan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ todayReflections.length }}</div>
+        <div class="stat-label">Hadir Hari Ini</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ pendingLeaves.length }}</div>
+        <div class="stat-label">Cuti Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ store.isTodayWorshipDay ? 'Ibadah' : 'Kerja' }}</div>
+        <div class="stat-label">Status Hari</div>
       </div>
     </div>
 
-    <!-- Current Time and Status -->
-    <div class="time-status-section">
-      <div class="time-card">
-        <div class="current-time">
-          <div class="time-display">
-            <span class="time-icon">🕐</span>
-            <span class="time-text">{{ currentTime }}</span>
-          </div>
-          <div class="date-display">{{ currentDate }}</div>
+    <!-- Content Sections -->
+    <div class="content">
+      <!-- Morning Reflections -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Morning Reflections</h2>
+          <button @click="store.fetchReflections" class="refresh-btn" :disabled="store.loading">
+            {{ store.loading ? 'Loading...' : 'Refresh' }}
+          </button>
         </div>
-        <div class="worship-status">
-          <div v-if="store.isTodayWorshipDay" class="status-active">
-            <span class="status-icon">🙏</span>
-            <span class="status-text">Hari Ibadah</span>
-          </div>
-          <div v-else class="status-inactive">
-            <span class="status-icon">📅</span>
-            <span class="status-text">Hari Kerja</span>
-          </div>
+        
+        <div v-if="store.reflections.length" class="table-wrapper">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Karyawan</th>
+                <th>Tanggal</th>
+                <th>Status</th>
+                <th>Waktu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="reflection in store.reflections" :key="reflection.id">
+                <td>{{ reflection.employee?.full_name || 'Unknown' }}</td>
+                <td>{{ formatDate(reflection.date) }}</td>
+                <td>
+                  <span class="status-badge" :class="getStatusBadgeClass(reflection.status)">
+                    {{ reflection.status }}
+                  </span>
+                </td>
+                <td>{{ reflection.join_time ? formatTime(reflection.join_time) : '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
-    </div>
+        
+        <div v-else class="empty-message">
+          <p>Belum ada data kehadiran hari ini</p>
+        </div>
+      </section>
 
-    <div class="dashboard-content">
-      <!-- Morning Reflections Section -->
-      <div class="section animate-fade-in">
-        <div class="card reflection-card">
-          <div class="card-header reflection-header">
-            <div class="header-left">
-              <h2 class="card-title reflection-title">
-                <span class="section-icon">🌅</span>
-                <div class="title-content">
-                  <span class="main-title">Morning Reflections</span>
-                  <span class="sub-title">Kehadiran Renungan Pagi Hari Ini</span>
-                </div>
-              </h2>
-            </div>
-            <div class="card-actions">
-              <button @click="store.fetchReflections" class="btn btn-refresh" :disabled="store.loading">
-                <span class="btn-icon" :class="{ 'spinning': store.loading }">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 4V9H4.58152M4.58152 9C5.24618 7.35652 6.43101 5.9604 7.96114 5.02493C9.49127 4.08946 11.2865 3.67505 13.0826 3.83379C14.8787 3.99254 16.5823 4.72379 17.9291 5.91948C19.2758 7.11517 20.1948 8.71375 20.5407 10.4743M20.5407 10.4743L19 9M20.5407 10.4743L22 9M20 20V15H19.4185M19.4185 15C18.7538 16.6435 17.569 18.0396 16.0389 18.9751C14.5087 19.9105 12.7135 20.3249 10.9174 20.1662C9.12132 20.0075 7.41766 19.2762 6.07092 18.0805C4.72418 16.8848 3.80521 15.2863 3.45926 13.5257M3.45926 13.5257L5 15M3.45926 13.5257L2 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </span>
-                <span class="btn-text">{{ store.loading ? 'Loading...' : 'Refresh' }}</span>
-              </button>
-            </div>
-          </div>
-          
-          <div v-if="store.reflections.length" class="table-container">
-            <table class="table-luxury">
-              <thead>
-                <tr>
-                  <th>Karyawan</th>
-                  <th>Tanggal</th>
-                  <th>Status</th>
-                  <th>Waktu Join</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="reflection in store.reflections" :key="reflection.id" class="table-row">
-                  <td>
-                    <div class="employee-cell">
-                      <div class="employee-avatar">
-                        {{ getInitials(reflection.employee?.full_name) }}
-                      </div>
-                      <span class="employee-name">{{ reflection.employee?.full_name || 'Unknown' }}</span>
-                    </div>
-                  </td>
-                  <td class="date-cell">{{ formatDate(reflection.date) }}</td>
-                  <td>
-                    <span :class="getStatusBadgeClass(reflection.status)">{{ reflection.status }}</span>
-                  </td>
-                  <td class="time-cell">
-                    {{ reflection.join_time ? formatTime(reflection.join_time) : '-' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div v-else class="empty-state">
-            <div class="empty-icon">🙏</div>
-            <h3>Belum ada data kehadiran</h3>
-            <p>Data kehadiran renungan pagi akan muncul di sini</p>
-          </div>
+      <!-- Leave Requests -->
+      <section class="section">
+        <div class="section-header">
+          <h2>Data Cuti</h2>
+          <button @click="store.fetchLeaves" class="refresh-btn" :disabled="store.loading">
+            {{ store.loading ? 'Loading...' : 'Refresh' }}
+          </button>
         </div>
-      </div>
-
-      <!-- Leave Requests Section -->
-      <div class="section animate-fade-in">
-        <div class="card glass-effect">
-          <div class="card-header">
-            <h2 class="card-title">
-              <span class="section-icon">📅</span>
-              Data Cuti
-            </h2>
-            <div class="card-actions">
-              <button @click="store.fetchLeaves" class="btn btn-primary btn-sm" :disabled="store.loading">
-                <span v-if="store.loading">⏳</span>
-                <span v-else>🔄</span>
-                {{ store.loading ? 'Loading...' : 'Refresh' }}
-              </button>
-            </div>
-          </div>
-          
-          <div v-if="store.leaves.length" class="table-container">
-            <table class="table-luxury">
-              <thead>
-                <tr>
-                  <th>Karyawan</th>
-                  <th>Tanggal Mulai</th>
-                  <th>Tanggal Selesai</th>
-                  <th>Tipe Cuti</th>
-                  <th>Status</th>
-                  <th>Durasi</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="leave in store.leaves" :key="leave.id" class="table-row">
-                  <td>
-                    <div class="employee-cell">
-                      <div class="employee-avatar">
-                        {{ getInitials(leave.employee?.full_name) }}
-                      </div>
-                      <span class="employee-name">{{ leave.employee?.full_name || 'Unknown' }}</span>
-                    </div>
-                  </td>
-                  <td class="date-cell">{{ formatDate(leave.start_date) }}</td>
-                  <td class="date-cell">{{ formatDate(leave.end_date) }}</td>
-                  <td>
-                    <span class="leave-type">{{ leave.type }}</span>
-                  </td>
-                  <td>
-                    <span :class="getLeaveStatusBadgeClass(leave.status)">{{ leave.status }}</span>
-                  </td>
-                  <td class="duration-cell">
-                    {{ calculateLeaveDuration(leave.start_date, leave.end_date) }} hari
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <div v-else class="empty-state">
-            <div class="empty-icon">📅</div>
-            <h3>Belum ada data cuti</h3>
-            <p>Data cuti karyawan akan muncul di sini</p>
-          </div>
+        
+        <div v-if="store.leaves.length" class="table-wrapper">
+          <table class="simple-table">
+            <thead>
+              <tr>
+                <th>Karyawan</th>
+                <th>Mulai</th>
+                <th>Selesai</th>
+                <th>Tipe</th>
+                <th>Status</th>
+                <th>Durasi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="leave in store.leaves" :key="leave.id">
+                <td>{{ leave.employee?.full_name || 'Unknown' }}</td>
+                <td>{{ formatDate(leave.start_date) }}</td>
+                <td>{{ formatDate(leave.end_date) }}</td>
+                <td>{{ leave.type }}</td>
+                <td>
+                  <span class="status-badge" :class="getLeaveStatusBadgeClass(leave.status)">
+                    {{ leave.status }}
+                  </span>
+                </td>
+                <td>{{ calculateLeaveDuration(leave.start_date, leave.end_date) }} hari</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-      </div>
+        
+        <div v-else class="empty-message">
+          <p>Belum ada data cuti</p>
+        </div>
+      </section>
     </div>
   </div>
 </template>
@@ -366,91 +291,248 @@ export default {
 </script>
 
 <style scoped>
-/* Dashboard Layout */
+/* Simple Dashboard Styles */
 .dashboard {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: #f8fafc;
   padding: 2rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header Section */
-.dashboard-header {
-  margin-bottom: 2rem;
-}
-
-.header-content {
+/* Header */
+.header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.header-text {
-  flex: 1;
-  min-width: 300px;
-}
-
-.dashboard-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #2d3748;
-  margin: 0;
-  display: flex;
   align-items: center;
-  gap: 0.75rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
-.title-icon {
-  font-size: 2.5rem;
+.title {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
 }
 
-.dashboard-subtitle {
-  font-size: 1.1rem;
-  color: #718096;
-  margin: 0.5rem 0;
-  line-height: 1.4;
-}
-
-.header-stats {
+.time-info {
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.time {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.date {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+/* Stats Grid */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  flex-wrap: wrap;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
   background: white;
-  border-radius: 16px;
+  border-radius: 8px;
   padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  min-width: 180px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.stat-icon {
-  font-size: 2rem;
-  opacity: 0.8;
-}
-
-.stat-content {
-  color: #2d3748;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  text-align: center;
 }
 
 .stat-number {
-  font-size: 1.875rem;
+  font-size: 2rem;
   font-weight: 700;
-  line-height: 1;
-  margin-bottom: 0.25rem;
+  color: #2d3748;
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: #718096;
+  font-weight: 500;
+}
+
+/* Content Sections */
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin: 0;
+}
+
+.refresh-btn {
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+  background: #2c5282;
+}
+
+.refresh-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+/* Table Styles */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.simple-table th {
+  background: #f7fafc;
+  color: #4a5568;
+  font-weight: 600;
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.simple-table td {
+  padding: 0.75rem;
+  border-bottom: 1px solid #e2e8f0;
+  color: #2d3748;
+}
+
+.simple-table tr:hover {
+  background: #f7fafc;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-present {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.status-late {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.status-absent {
+  background: #e2e8f0;
+  color: #4a5568;
+}
+
+.status-approved {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.status-pending {
+  background: #fef5e7;
+  color: #744210;
+}
+
+.status-rejected {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+/* Empty Message */
+.empty-message {
+  text-align: center;
+  padding: 2rem;
+  color: #718096;
+}
+
+.empty-message p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+  
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .time-info {
+    align-items: flex-start;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .simple-table {
+    font-size: 0.75rem;
+  }
+  
+  .simple-table th,
+  .simple-table td {
+    padding: 0.5rem;
+  }
 }
 
 .stat-label {
@@ -465,16 +547,41 @@ export default {
 }
 
 .time-card {
-  background: white;
-  border-radius: 16px;
-  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(40px);
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-deep);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.time-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 1s ease;
+}
+
+.time-card:hover::before {
+  left: 100%;
+}
+
+.time-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-floating);
+  background: rgba(255, 255, 255, 0.15);
 }
 
 .current-time {
@@ -489,7 +596,13 @@ export default {
   gap: 0.75rem;
   font-size: 1.5rem;
   font-weight: 600;
-  color: #2d3748;
+  background: var(--gradient-holographic);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .time-icon {
@@ -522,15 +635,32 @@ export default {
 }
 
 .status-active {
-  background: #e6fffa;
-  color: #234e52;
-  border: 1px solid #81e6d9;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(52, 211, 153, 0.2));
+  backdrop-filter: blur(20px);
+  color: #065f46;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.status-active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.6), transparent);
+  animation: shimmer 2s infinite;
 }
 
 .status-inactive {
-  background: #f7fafc;
-  color: #4a5568;
-  border: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  color: #374151;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-soft);
 }
 
 .status-text {
@@ -563,10 +693,30 @@ export default {
 
 /* Glass Effect */
 .glass-effect {
-  background: rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: var(--shadow-floating);
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-effect::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gradient-aurora);
+  background-size: 200% 200%;
+  animation: gradientShift 4s ease infinite;
+}
+
+.glass-effect:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-deep);
 }
 
 /* Dashboard Content */
@@ -581,17 +731,34 @@ export default {
 }
 
 .card {
-  background: white;
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(30px);
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-floating);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-rainbow);
+  background-size: 400% 400%;
+  animation: gradientShift 6s ease infinite;
+  z-index: 1;
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px) rotateX(2deg);
+  box-shadow: var(--shadow-deep);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
 /* Morning Reflection Card Specific Styles */
@@ -619,14 +786,31 @@ export default {
 
 .reflection-header {
   padding: 2rem 2.5rem 1.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
   gap: 1.5rem;
   position: relative;
+  z-index: 2;
+}
+
+.reflection-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+  transition: left 1.5s ease;
+}
+
+.card:hover .reflection-header::before {
+  left: 100%;
 }
 
 .header-left {
@@ -643,12 +827,19 @@ export default {
 
 .section-icon {
   font-size: 2.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: var(--gradient-holographic);
+  background-size: 400% 400%;
+  animation: gradientShift 5s ease infinite, gentle-bounce 4s ease-in-out infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-  animation: gentle-bounce 3s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(102, 126, 234, 0.3));
+  transition: all 0.3s ease;
+}
+
+.card:hover .section-icon {
+  transform: scale(1.1) rotate(10deg);
+  filter: drop-shadow(0 6px 12px rgba(102, 126, 234, 0.5));
 }
 
 @keyframes gentle-bounce {
@@ -665,12 +856,14 @@ export default {
 .main-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #2d3748;
   line-height: 1.2;
-  background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+  background: var(--gradient-cosmic);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .sub-title {
@@ -690,17 +883,127 @@ export default {
 .btn {
   padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
   gap: 0.75rem;
   position: relative;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #374151;
   overflow: hidden;
+}
+
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.badge:hover::before {
+  left: 100%;
+}
+
+.badge:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: var(--shadow-neon);
+}
+
+.badge-success {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+  color: #10b981;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.2);
+}
+
+.badge-success:hover {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.3));
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.4);
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(251, 191, 36, 0.2));
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.2);
+}
+
+.badge-warning:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.3));
+  box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(248, 113, 113, 0.2));
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.badge-danger:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(248, 113, 113, 0.3));
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+.badge-info {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(99, 102, 241, 0.2));
+  color: #3b82f6;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.badge-info:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(99, 102, 241, 0.3));
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transition: left 0.6s ease;
+}
+
+.btn:hover::before {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--shadow-glow);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
   font-size: 0.875rem;
 }
+  
+  
 
 .btn:disabled {
   opacity: 0.6;
@@ -766,20 +1069,35 @@ export default {
 /* Table Styles */
 .table-container {
   overflow-x: auto;
-  max-height: 600px;
-  overflow-y: auto;
-  border-radius: 0 0 16px 16px;
+  border-radius: 0 0 24px 24px;
+  position: relative;
+}
+
+.table-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--gradient-holographic);
+  background-size: 200% 200%;
+  animation: gradientShift 3s ease infinite;
+  z-index: 1;
 }
 
 .table-luxury {
   width: 100%;
   border-collapse: collapse;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.02);
+  position: relative;
 }
 
 .table-luxury th {
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-  color: #374151;
+  background: var(--gradient-cosmic);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+  color: white;
   font-weight: 600;
   padding: 1.25rem 1rem;
   text-align: left;
@@ -790,6 +1108,22 @@ export default {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   backdrop-filter: blur(10px);
+  overflow: hidden;
+}
+
+.table-luxury th::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.8s ease;
+}
+
+.table-luxury th:hover::before {
+  left: 100%;
 }
 
 .table-luxury th:first-child {
@@ -802,10 +1136,12 @@ export default {
 
 .table-luxury td {
   padding: 1.25rem 1rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   color: #374151;
   font-size: 0.9rem;
-  transition: all 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .table-luxury td:first-child {
@@ -829,6 +1165,20 @@ export default {
 
 .table-row:hover td {
   color: #1f2937;
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.01);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.table-row:hover td::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  pointer-events: none;
 }
 
 /* Employee Cell */
@@ -1013,6 +1363,23 @@ export default {
   margin: 2rem;
   border: 2px dashed #e2e8f0;
   transition: all 0.3s ease;
+  position: relative;
+  backdrop-filter: blur(20px);
+}
+
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--gradient-aurora);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+  opacity: 0.1;
+  border-radius: 16px;
+  z-index: -1;
 }
 
 .empty-state:hover {
@@ -1023,12 +1390,14 @@ export default {
 .empty-icon {
   font-size: 4rem;
   margin-bottom: 1.5rem;
-  opacity: 0.6;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.7;
+  background: var(--gradient-holographic);
+  background-size: 200% 200%;
+  animation: gradientShift 6s ease infinite;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  animation: gentle-pulse 2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
 }
 
 @keyframes gentle-pulse {
@@ -1041,13 +1410,19 @@ export default {
   color: #374151;
   font-size: 1.25rem;
   font-weight: 600;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .empty-state p {
   margin: 0;
-  color: #6b7280;
+  color: #8b5cf6;
   font-size: 1rem;
   line-height: 1.5;
+  font-weight: 500;
+  opacity: 0.9;
 }
 
 /* Animations */
@@ -1265,6 +1640,19 @@ export default {
   
   .empty-state p {
     font-size: 0.9rem;
+  }
+}
+
+/* Ocean Wave Animation */
+@keyframes oceanWave {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
 </style>
