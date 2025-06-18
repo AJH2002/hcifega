@@ -1,0 +1,138 @@
+/* Modern Luxury Color Palette */
+:root {
+  /* Primary Luxury Colors */
+  --luxury-gold: #D4AF37;
+  --luxury-gold-light: #F4E4BC;
+  --luxury-gold-dark: #B8941F;
+  
+  /* Premium Grays */
+  --luxury-charcoal: #2C2C2C;
+  --luxury-gray-dark: #3A3A3A;
+  --luxury-gray-medium: #6B7280;
+  --luxury-gray-light: #F8FAFC;
+  --luxury-gray-soft: #F1F5F9;
+  
+  /* Elegant Blues */
+  --luxury-navy: #1E293B;
+  --luxury-blue: #3B82F6;
+  --luxury-blue-light: #DBEAFE;
+  
+  /* Pure Colors */
+  --luxury-white: #FFFFFF;
+  --luxury-black: #0F172A;
+  
+  /* Shadows & Effects */
+  --shadow-luxury: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-elegant: 0 10px 25px -3px rgba(0, 0, 0, 0.1);
+  --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  
+  /* Gradients */
+  --gradient-luxury: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-gold: linear-gradient(135deg, #D4AF37 0%, #F4E4BC 100%);
+  --gradient-elegant: linear-gradient(135deg, #1E293B 0%, #3B82F6 100%);
+  
+  /* Typography */
+  --font-luxury: 'Playfair Display', 'Georgia', serif;
+  --font-elegant: 'Inter', 'Segoe UI', sans-serif;
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+/* Reset & Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-elegant);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--luxury-charcoal);
+  background: var(--luxury-gray-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Luxury Typography */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-luxury);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--luxury-navy);
+}
+
+/* Smooth Transitions */
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--luxury-gray-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--luxury-gold);
+  border-radius: var(--radius-md);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--luxury-gold-dark);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  font-weight: normal;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--color-text);
+  background: var(--color-background);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
+  line-height: 1.6;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    'Fira Sans',
+    'Droid Sans',
+    'Helvetica Neue',
+    sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
