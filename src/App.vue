@@ -5,7 +5,7 @@
       <div class="nav-container">
         <div class="nav-brand">
           <div class="brand-icon">
-            <img src="/logohci.png" alt="Logo" width="60" height="60" />
+            <img src="/logohci.png" alt="Logo" width="40" height="40" />
           </div>
           <h1 class="nav-title">General Affair System</h1>
         </div>
@@ -22,19 +22,12 @@
       </div>
     </nav>
     
-    <!-- Main Content Area -->
+    <!-- Main Content Area - Full Screen -->
     <main class="main-container">
-      <div class="content-wrapper">
+      <div class="content-container">
         <router-view />
       </div>
     </main>
-    
-    <!-- Decorative Elements -->
-    <div class="bg-decoration">
-      <div class="decoration-circle decoration-1"></div>
-      <div class="decoration-circle decoration-2"></div>
-      <div class="decoration-circle decoration-3"></div>
-    </div>
   </div>
 </template>
 
@@ -45,29 +38,43 @@ export default {
 </script>
 
 <style>
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
+  color: #2d3748;
+}
+
 /* App Container */
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
   position: relative;
-  overflow-x: hidden;
 }
 
 /* Luxury Navigation */
 .navbar {
-  background: var(--gradient-elegant);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: var(--shadow-elegant);
-  position: sticky;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
 }
 
 .nav-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -76,43 +83,47 @@ export default {
 .nav-brand {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  gap: 0.75rem;
 }
 
 .brand-icon {
-  width: 48px;
-  height: 48px;
-  background: var(--gradient-gold);
-  border-radius: var(--radius-lg);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--luxury-navy);
-  box-shadow: var(--shadow-soft);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.brand-icon img {
+  border-radius: 4px;
 }
 
 .nav-title {
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--luxury-white);
+  color: white;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   letter-spacing: -0.025em;
 }
 
 .nav-links {
   display: flex;
-  gap: var(--spacing-sm);
+  gap: 0.5rem;
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: var(--spacing-md) var(--spacing-lg);
-  color: #2d3748;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
-  border-radius: var(--radius-lg);
+  border-radius: 8px;
   font-weight: 500;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -134,102 +145,93 @@ export default {
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-soft);
-  color: #1a202c;
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+  color: white;
 }
 
 .nav-link.router-link-active {
-  background: var(--luxury-gold);
-  color: var(--luxury-navy);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
   font-weight: 600;
 }
 
 .nav-link-icon {
-  font-size: 1.25rem;
+  font-size: 1.1rem;
 }
 
-/* Main Content */
+/* Main Content - Full Screen */
 .main-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
-  position: relative;
-  z-index: 1;
-}
-
-.content-wrapper {
-  background: var(--luxury-white);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-luxury);
-  padding: 1rem;
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Background Decorations */
-.bg-decoration {
-  position: fixed;
-  top: 0;
-  left: 0;
+  min-height: 100vh;
+  padding-top: 80px;
   width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
 }
 
-.decoration-circle {
-  position: absolute;
-  border-radius: 50%;
-  background: var(--gradient-gold);
-  opacity: 0.1;
-  animation: float 6s ease-in-out infinite;
-}
-
-.decoration-1 {
-  width: 300px;
-  height: 300px;
-  top: 10%;
-  right: -150px;
-  animation-delay: 0s;
-}
-
-.decoration-2 {
-  width: 200px;
-  height: 200px;
-  bottom: 20%;
-  left: -100px;
-  animation-delay: 2s;
-}
-
-.decoration-3 {
-  width: 150px;
-  height: 150px;
-  top: 60%;
-  right: 10%;
-  animation-delay: 4s;
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-20px) rotate(180deg);
-  }
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  min-height: calc(100vh - 80px);
 }
 
 /* Responsive Design */
+@media (max-width: 1024px) {
+  .nav-container {
+    max-width: 100%;
+    padding: 1rem;
+  }
+  
+  .content-container {
+    max-width: 100%;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 768px) {
   .nav-container {
-    padding: var(--spacing-md);
     flex-direction: column;
-    gap: var(--spacing-md);
+    gap: 1rem;
+    padding: 1rem;
+  }
+  
+  .nav-brand {
+    gap: 0.5rem;
   }
   
   .nav-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .nav-links {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .nav-link {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+    padding: 0.75rem 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .main-container {
+    padding-top: 120px;
+  }
+  
+  .content-container {
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-container {
+    padding: 0.75rem;
+  }
+  
+  .nav-title {
+    font-size: 1.1rem;
   }
   
   .nav-links {
@@ -238,15 +240,27 @@ export default {
   }
   
   .nav-link {
+    width: 100%;
     justify-content: center;
   }
   
   .main-container {
-    padding: var(--spacing-md);
+    padding-top: 140px;
   }
   
-  .content-wrapper {
-    padding: var(--spacing-lg);
+  .content-container {
+    padding: 0.5rem;
   }
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus styles for accessibility */
+.nav-link:focus {
+  outline: 2px solid rgba(255, 255, 255, 0.5);
+  outline-offset: 2px;
 }
 </style>
