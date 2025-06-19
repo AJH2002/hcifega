@@ -154,7 +154,7 @@ export default {
 .main-container {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--spacing-2xl);
+  padding: 1rem;
   position: relative;
   z-index: 1;
 }
@@ -163,7 +163,7 @@ export default {
   background: var(--luxury-white);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-luxury);
-  padding: var(--spacing-2xl);
+  padding: 1rem;
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }

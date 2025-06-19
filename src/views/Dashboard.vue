@@ -293,9 +293,8 @@ export default {
 <style scoped>
 /* Simple Dashboard Styles */
 .dashboard {
-  min-height: 100vh;
   background: #f8fafc;
-  padding: 2rem;
+  padding: 1rem;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
