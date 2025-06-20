@@ -23,8 +23,8 @@
       <div class="stat-card">
         <div class="stat-icon">✅</div>
         <div class="stat-info">
-          <div class="stat-number">{{ todayReflections.length }}</div>
-          <div class="stat-label">Hadir Hari Ini</div>
+          <div class="stat-number">{{ todayTotalAttendance }}</div>
+          <div class="stat-label">Kehadiran Hari Ini</div>
         </div>
       </div>
       <div class="stat-card">
@@ -182,9 +182,32 @@ export default {
     // Computed properties
     const todayReflections = computed(() => {
       const today = new Date().toISOString().split('T')[0]
+      const todayDate = new Date()
+      const dayOfWeek = todayDate.getDay()
+      
+      // Hanya tampilkan jika hari ini adalah hari renungan (Senin, Rabu, Jumat)
+      if (![1, 3, 5].includes(dayOfWeek)) {
+        return []
+      }
+      
       return store.reflections.filter(reflection => 
-        reflection.date === today
+        reflection.date === today && reflection.status === 'Hadir'
       )
+    })
+
+    const todayTotalAttendance = computed(() => {
+      const today = new Date().toISOString().split('T')[0]
+      const todayDate = new Date()
+      const dayOfWeek = todayDate.getDay()
+      
+      // Hanya tampilkan jika hari ini adalah hari renungan (Senin, Rabu, Jumat)
+      if (![1, 3, 5].includes(dayOfWeek)) {
+        return 0
+      }
+      
+      return store.reflections.filter(reflection => 
+        reflection.date === today && (reflection.status === 'Hadir' || reflection.status === 'Terlambat')
+      ).length
     })
 
     const pendingLeaves = computed(() => {
@@ -196,10 +219,14 @@ export default {
     const lateArrivalsCount = computed(() => {
       const today = new Date().toISOString().slice(0, 10);
       return store.reflections.filter(r => {
-        if (r.date !== today || !r.join_time) return false;
-        const checkinTime = new Date(r.join_time);
-        const lateTime = new Date(`${r.date}T08:05:00`);
-        return checkinTime > lateTime;
+        if (r.date !== today || !r.join_time || r.status !== 'Terlambat') return false;
+        
+        // Cek apakah hari ini adalah hari renungan
+        const reflectionDate = new Date(r.date);
+        const dayOfWeek = reflectionDate.getDay();
+        if (![1, 3, 5].includes(dayOfWeek)) return false;
+        
+        return true;
       }).length;
     });
 
@@ -207,29 +234,32 @@ export default {
       const today = new Date();
       const year = today.getFullYear();
       const month = today.getMonth();
-      const workDays = getWorkDaysInMonth(year, month);
-      const presentDays = new Set(store.reflections
+      const worshipDays = getWorshipDaysInMonth(year, month);
+      
+      // Filter reflections untuk bulan ini dan hanya status Hadir
+      const presentDays = store.reflections
         .filter(r => {
           const reflectionDate = new Date(r.date);
-          return reflectionDate.getFullYear() === year && reflectionDate.getMonth() === month;
-        })
-        .map(r => r.date)
-      ).size;
+          return reflectionDate.getFullYear() === year && 
+                 reflectionDate.getMonth() === month &&
+                 r.status === 'Hadir';
+        }).length;
 
-      return workDays > 0 ? Math.round((presentDays / workDays) * 100) : 0;
+      return worshipDays > 0 ? Math.round((presentDays / worshipDays) * 100) : 0;
     });
 
-    function getWorkDaysInMonth(year, month) {
-      let workDays = 0;
+    function getWorshipDaysInMonth(year, month) {
+      let worshipDays = 0;
       const date = new Date(year, month, 1);
       while (date.getMonth() === month) {
         const dayOfWeek = date.getDay();
-        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
-          workDays++;
+        // Hanya hitung hari Senin (1), Rabu (3), dan Jumat (5)
+        if ([1, 3, 5].includes(dayOfWeek)) {
+          worshipDays++;
         }
         date.setDate(date.getDate() + 1);
       }
-      return workDays;
+      return worshipDays;
     }
 
     const timeStatusClass = computed(() => {
@@ -343,7 +373,10 @@ export default {
       currentTime,
       currentDate,
       todayReflections,
+      todayTotalAttendance,
       pendingLeaves,
+      lateArrivalsCount,
+      monthlyAttendancePercentage,
       timeStatusClass,
       timeStatusText,
       formatDate,
