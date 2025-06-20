@@ -359,7 +359,7 @@ export default {
 
 <style scoped>
 .dashboard {
-  padding: 2rem;
+  padding: 1rem;
   background-color: #f9fafb;
 }
 
@@ -369,11 +369,11 @@ export default {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
 }
 
 .title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 800;
   color: #111827;
 }
@@ -390,13 +390,13 @@ export default {
 }
 
 .time {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 600;
   line-height: 1.2;
 }
 
 .date {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #6b7280;
   line-height: 1.2;
 }
@@ -404,18 +404,18 @@ export default {
 /* Stats Grid */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .stat-card {
   background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
   transition: all 0.3s ease-in-out;
 }
@@ -426,16 +426,16 @@ export default {
 }
 
 .stat-icon {
-  font-size: 3rem;
+  font-size: 2rem;
 }
 
 .stat-number {
-  font-size: 2.25rem;
+  font-size: 1.5rem;
   font-weight: 700;
 }
 
 .stat-label {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #4b5563;
 }
 
@@ -443,7 +443,7 @@ export default {
 .content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.5rem;
+  gap: 1.5rem;
 }
 
 @media (min-width: 1024px) {
@@ -454,26 +454,26 @@ export default {
 
 .section {
   background: #fff;
-  border-radius: 16px;
-  padding: 2rem;
+  border-radius: 12px;
+  padding: 1.25rem;
   box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
 .section-header {
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 1rem;
-  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .section-header h2 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 700;
 }
 
 .refresh-btn {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  border-radius: 12px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  border-radius: 8px;
 }
 
 
@@ -494,16 +494,16 @@ export default {
   background: #f7fafc;
   color: #4a5568;
   font-weight: 600;
-  padding: 1rem 0.75rem;
+  padding: 0.75rem 0.5rem;
   text-align: left;
   border-bottom: 2px solid #e2e8f0;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .simple-table td {
-  padding: 0.75rem;
+  padding: 0.5rem;
   border-bottom: 1px solid #e2e8f0;
   color: #2d3748;
   vertical-align: middle;
@@ -561,13 +561,13 @@ export default {
 /* Empty Message */
 .empty-message {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2rem 1rem;
   color: #718096;
 }
 
 .empty-message p {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.875rem;
 }
 
 /* Responsive Design */
