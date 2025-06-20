@@ -4,28 +4,56 @@
     <header class="header">
       <h1 class="title">Dashboard Morning Reflection</h1>
       <div class="time-info">
-        <span class="time">{{ currentTime }}</span>
-        <span class="date">{{ currentDate }}</span>
+        <div class="current-time">
+          <span class="time">{{ currentTime }}</span>
+          <span class="date">{{ currentDate }}</span>
+        </div>
       </div>
     </header>
 
     <!-- Stats Cards -->
     <div class="stats">
       <div class="stat-card">
-        <div class="stat-number">{{ store.employees.length }}</div>
-        <div class="stat-label">Total Karyawan</div>
+        <div class="stat-icon">👥</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ store.employees.length }}</div>
+          <div class="stat-label">Total Karyawan</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{{ todayReflections.length }}</div>
-        <div class="stat-label">Hadir Hari Ini</div>
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ todayReflections.length }}</div>
+          <div class="stat-label">Hadir Hari Ini</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{{ pendingLeaves.length }}</div>
-        <div class="stat-label">Cuti Pending</div>
+        <div class="stat-icon">⏳</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ pendingLeaves.length }}</div>
+          <div class="stat-label">Cuti Pending</div>
+        </div>
       </div>
       <div class="stat-card">
-        <div class="stat-number">{{ store.isTodayWorshipDay ? 'Ibadah' : 'Kerja' }}</div>
-        <div class="stat-label">Status Hari</div>
+        <div class="stat-icon">🗓️</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ store.isTodayWorshipDay ? 'Ibadah' : 'Kerja' }}</div>
+          <div class="stat-label">Status Hari</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⏰</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ lateArrivalsCount }}</div>
+          <div class="stat-label">Terlambat Hari Ini</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div class="stat-info">
+          <div class="stat-number">{{ monthlyAttendancePercentage }}%</div>
+          <div class="stat-label">Kehadiran Bulan Ini</div>
+        </div>
       </div>
     </div>
 
@@ -165,6 +193,45 @@ export default {
       )
     })
 
+    const lateArrivalsCount = computed(() => {
+      const today = new Date().toISOString().slice(0, 10);
+      return store.reflections.filter(r => {
+        if (r.date !== today || !r.join_time) return false;
+        const checkinTime = new Date(r.join_time);
+        const lateTime = new Date(`${r.date}T08:05:00`);
+        return checkinTime > lateTime;
+      }).length;
+    });
+
+    const monthlyAttendancePercentage = computed(() => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth();
+      const workDays = getWorkDaysInMonth(year, month);
+      const presentDays = new Set(store.reflections
+        .filter(r => {
+          const reflectionDate = new Date(r.date);
+          return reflectionDate.getFullYear() === year && reflectionDate.getMonth() === month;
+        })
+        .map(r => r.date)
+      ).size;
+
+      return workDays > 0 ? Math.round((presentDays / workDays) * 100) : 0;
+    });
+
+    function getWorkDaysInMonth(year, month) {
+      let workDays = 0;
+      const date = new Date(year, month, 1);
+      while (date.getMonth() === month) {
+        const dayOfWeek = date.getDay();
+        if (dayOfWeek >= 1 && dayOfWeek <= 5) { // Monday to Friday
+          workDays++;
+        }
+        date.setDate(date.getDate() + 1);
+      }
+      return workDays;
+    }
+
     const timeStatusClass = computed(() => {
       const status = store.zoomTimeStatus
       return {
@@ -291,35 +358,31 @@ export default {
 </script>
 
 <style scoped>
-/* Dashboard Styles - Improved */
 .dashboard {
-  background: transparent;
-  padding: 0;
-  font-family: inherit;
-  width: 100%;
+  padding: 2rem;
+  background-color: #f9fafb;
 }
 
 /* Header */
 .header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  margin-bottom: 2.5rem;
 }
 
 .title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #111827;
 }
 
 .time-info {
+  text-align: right;
+}
+
+.current-time {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -327,109 +390,92 @@ export default {
 }
 
 .time {
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   font-weight: 600;
-  color: #2d3748;
+  line-height: 1.2;
 }
 
 .date {
-  font-size: 0.875rem;
-  color: #718096;
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.2;
 }
 
 /* Stats Grid */
 .stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .stat-card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
-  text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  transition: all 0.3s ease-in-out;
 }
 
 .stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+}
+
+.stat-icon {
+  font-size: 3rem;
 }
 
 .stat-number {
   font-size: 2.25rem;
   font-weight: 700;
-  color: #2d3748;
-  margin-bottom: 0.5rem;
-  line-height: 1;
 }
 
 .stat-label {
-  font-size: 0.875rem;
-  color: #718096;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 1rem;
+  color: #4b5563;
 }
 
 /* Content Sections */
 .content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .content {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .section {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
 }
 
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
   padding-bottom: 1rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.5rem;
 }
 
 .section-header h2 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1a202c;
-  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
 .refresh-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 12px;
 }
 
-.refresh-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-}
-
-.refresh-btn:disabled {
-  background: #a0aec0;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
 
 /* Table Styles */
 .table-wrapper {

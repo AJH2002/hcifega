@@ -9,7 +9,7 @@
       <div class="time-info">
         <div class="current-time">
           <span class="time">{{ currentTimeDisplay }}</span>
-          <span class="date">{{ new Date().toLocaleDateString('id-ID') }}</span>
+          <span class="date">{{ currentDateDisplay }}</span>
         </div>
         <div class="status-info">
           <span class="status-badge" :class="timeStatusClass">{{ timeStatusMessage }}</span>
@@ -34,21 +34,32 @@
       <div class="section">
         <div class="section-header">
           <h2>Riwayat Kehadiran</h2>
-          <button class="refresh-btn" @click="store.fetchReflections" :disabled="loading">
-            Refresh
-          </button>
+          <div class="section-header-actions">
+            <button class="btn btn-primary" @click="store.fetchReflections">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L20.5 10"></path>
+                <path d="M20.49 15a9 9 0 0 1-14.85 3.36L3.5 14"></path>
+              </svg>
+              <span>Refresh</span>
+            </button>
+            <button class="btn btn-success" @click="exportToCSV">
+              <span class="icon">📄</span> Export to CSV
+            </button>
+          </div>
         </div>
         
         <!-- Search and Filter Controls -->
         <div class="controls">
           <div class="search-box">
+            <span class="search-icon">🔍</span>
             <input 
               type="text" 
               v-model="searchQuery" 
-              placeholder="Cari nama karyawan..."
+              placeholder="Cari nama atau ID karyawan..."
               class="search-input"
             >
-            <span class="search-icon">🔍</span>
           </div>
           
           <div class="filter-controls">
@@ -141,6 +152,16 @@ export default {
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
+        timeZone: 'Asia/Jakarta'
+      })
+    })
+    
+    const currentDateDisplay = computed(() => {
+      return currentTime.value.toLocaleDateString('id-ID', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
         timeZone: 'Asia/Jakarta'
       })
     })
@@ -270,10 +291,34 @@ export default {
       }
     })
     
+    const exportToCSV = () => {
+      const headers = ['Karyawan', 'ID Karyawan', 'Tanggal', 'Status', 'Waktu Join'];
+      const rows = filteredReflections.value.map(reflection => [
+        `"${reflection.employee?.full_name || 'Unknown'}"`,
+        `"${reflection.employee?.employee_id || '-'}"`,
+        `"${formatDate(reflection.date)}"`,
+        `"${reflection.status}"`,
+        `"${reflection.join_time ? new Date(reflection.join_time).toLocaleTimeString('id-ID', { timeZone: 'Asia/Jakarta' }) : 'Manual Entry'}"`
+      ]);
+
+      let csvContent = "data:text/csv;charset=utf-8,"
+        + headers.join(",") + "\n"
+        + rows.map(e => e.join(",")).join("\n");
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "riwayat_kehadiran.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     return {
       store,
       currentTime,
       currentTimeDisplay,
+      currentDateDisplay,
       timeStatusClass,
       timeStatusIcon,
       timeStatusMessage,
@@ -286,6 +331,7 @@ export default {
       getStatusBadgeClass,
       getStatusClass,
       showNotification,
+      exportToCSV,
       loading: computed(() => store.loading),
       errors: computed(() => store.errors),
       employees: computed(() => store.employees),
@@ -296,38 +342,34 @@ export default {
 </script>
 
 <style scoped>
-/* Attendance Layout */
 .attendance {
-  min-height: 100vh;
   padding: 2rem;
-  background: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f9fafb;
 }
 
 /* Header */
 .header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 2.5rem;
 }
 
 .header-left h1 {
   font-size: 2rem;
-  font-weight: 700;
-  color: #1a202c;
-  margin: 0 0 0.5rem 0;
+  font-weight: 800;
+  color: #111827;
 }
 
 .header-left p {
   font-size: 1rem;
-  color: #718096;
-  margin: 0;
+  color: #6b7280;
 }
 
+/* Time Info Styling */
 .time-info {
+  text-align: right;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -338,17 +380,21 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 0.25rem;
 }
 
 .time {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #2d3748;
+  color: #111827;
+  line-height: 1.2;
 }
 
 .date {
-  font-size: 0.875rem;
-  color: #718096;
+  font-size: 1rem;
+  color: #6b7280;
+  font-weight: 400;
+  line-height: 1.2;
 }
 
 .status-info {
@@ -356,6 +402,7 @@ export default {
   flex-direction: column;
   align-items: flex-end;
   gap: 0.25rem;
+  margin-top: 0.5rem;
 }
 
 .status-badge {
@@ -368,108 +415,132 @@ export default {
   letter-spacing: 0.05em;
 }
 
-.status-badge.status-hadir {
-  background: #c6f6d5;
-  color: #22543d;
-}
-
-.status-badge.status-terlambat {
-  background: #fed7d7;
-  color: #742a2a;
-}
-
-.status-badge.status-closed {
-  background: #e2e8f0;
-  color: #4a5568;
-}
-
 .day-status {
-  font-size: 0.75rem;
-  color: #718096;
+  font-size: 0.875rem;
+  color: #6b7280;
   font-weight: 500;
 }
 
-.day-status.worship-day {
-  color: #3182ce;
+.worship-day {
+  color: #3b82f6;
   font-weight: 600;
-}
-
-/* Content Sections */
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.section {
-  background: white;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
 }
 
 /* Controls */
 .controls {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  margin-bottom: 1.5rem;
+  display: flex; /* Changed to flexbox */
+  flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  justify-content: space-between; /* Space out items */
+  align-items: center; /* Align items vertically */
   gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .search-box {
   position: relative;
-  max-width: 350px;
-  width: 100%;
+  display: flex;
+  align-items: center;
+  flex-grow: 1; /* Allow search box to grow */
+  max-width: 400px; /* Set a max-width */
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 4px 12px;
+  transition: all 0.3s ease;
+}
+
+.search-box:hover, .search-box:focus-within {
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .search-input {
-  width: 100%;
-  padding: 0.75rem 2.5rem 0.75rem 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  background: #f8fafc;
-  transition: all 0.2s;
-}
-
-.search-input:focus {
+  flex-grow: 1;
+  border: none;
   outline: none;
-  border-color: #3182ce;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+  padding: 8px;
+  font-size: 1rem;
+  background-color: transparent;
 }
 
 .search-icon {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #718096;
-  pointer-events: none;
+  color: #9e9e9e;
+  margin-right: 8px;
+  font-size: 1.1rem;
 }
 
-.filter-controls {
+
+
+
+
+.sort-select,
+.status-filter {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #d1d5db;
+  background-color: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus,
+.sort-select:focus,
+.status-filter:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* Section Header */
+.section-header {
   display: flex;
-  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: nowrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.filter-group {
+.section-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Table Styles */
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.simple-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.simple-table th,
+.simple-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.simple-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+.employee-info {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-  align-items: flex-start;
 }
 
-.filter-label {
-  font-size: 0.75rem;
+.employee-name {
   font-weight: 600;
-  color: #4a5568;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+}
+
+.employee-id {
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
 .sort-select,
@@ -532,6 +603,55 @@ export default {
 .refresh-btn:disabled {
   background: #a0aec0;
   cursor: not-allowed;
+}
+
+.section-header-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+.btn-primary {
+  background-color: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-success {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #27ae60;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  transition: transform 0.3s ease;
+}
+
+.btn:hover .icon {
+  transform: rotate(90deg);
 }
 
 /* Table Styles */
