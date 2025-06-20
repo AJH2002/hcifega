@@ -89,7 +89,7 @@ body {
 .brand-icon {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  background: white;
   border-radius: 8px;
   display: flex;
   align-items: center;
