@@ -55,14 +55,17 @@
         
         <!-- Search and Filter Controls -->
         <div class="controls">
-          <div class="search-box">
-            <span class="search-icon">🔍</span>
-            <input 
-              type="text" 
-              v-model="searchQuery" 
-              placeholder="Cari nama atau ID karyawan..."
-              class="search-input"
-            >
+          <div class="search-section">
+            <label class="search-label">Pencarian:</label>
+            <div class="search-box">
+              <span class="search-icon">🔍</span>
+              <input 
+                type="text" 
+                v-model="searchQuery" 
+                placeholder="Cari nama atau ID karyawan..."
+                class="search-input"
+              >
+            </div>
           </div>
           
           <div class="filter-controls">
@@ -452,20 +455,33 @@ export default {
 
 /* Controls */
 .controls {
-  display: flex; /* Changed to flexbox */
-  flex-wrap: wrap; /* Allow wrapping on smaller screens */
-  justify-content: space-between; /* Space out items */
-  align-items: center; /* Align items vertically */
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: 1.5rem;
   margin-bottom: 2rem;
+}
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex-grow: 1;
+  max-width: 400px;
+}
+
+.search-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 .search-box {
   position: relative;
   display: flex;
   align-items: center;
-  flex-grow: 1; /* Allow search box to grow */
-  max-width: 400px; /* Set a max-width */
   background-color: #fff;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -491,6 +507,25 @@ export default {
   color: #9e9e9e;
   margin-right: 8px;
   font-size: 1.1rem;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
 }
 
 
@@ -779,11 +814,12 @@ export default {
   }
   
   .controls {
-    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: stretch;
     gap: 1rem;
   }
   
-  .search-box {
+  .search-section {
     max-width: none;
   }
   
