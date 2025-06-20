@@ -12,10 +12,13 @@
           <span class="date">{{ currentDateDisplay }}</span>
         </div>
         <div class="status-info">
-          <span class="status-badge" :class="timeStatusClass">{{ timeStatusMessage }}</span>
           <span class="day-status" :class="{ 'worship-day': store.isTodayWorshipDay }">
             {{ store.isTodayWorshipDay ? 'Hari Renungan' : 'Hari Biasa' }}
           </span>
+          <div v-if="store.zoomTimeStatus.status === 'Closed'" class="closed-status-block">
+            <span class="closed-status-text">{{ timeStatusMessage }}</span>
+          </div>
+          <span v-else class="status-badge" :class="timeStatusClass">{{ timeStatusMessage }}</span>
         </div>
       </div>
     </div>
@@ -424,6 +427,27 @@ export default {
 .worship-day {
   color: #3b82f6;
   font-weight: 600;
+}
+
+/* Closed Status Block */
+.closed-status-block {
+  background-color: #fee2e2;
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  margin-top: 0.25rem;
+  box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1);
+  display: inline-block;
+}
+
+.closed-status-text {
+  color: #dc2626;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  display: block;
+  text-align: center;
 }
 
 /* Controls */
